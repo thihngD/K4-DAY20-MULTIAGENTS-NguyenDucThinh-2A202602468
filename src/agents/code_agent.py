@@ -18,9 +18,11 @@ class CodeAgent(BaseWorker):
         self.output_dir = output_dir
 
     def process(self, task_content: str, parameters: dict | None = None) -> dict:
-        sandbox_vars = {"DB_PATH": self.db_path, "OUTPUT_DIR": self.output_dir}
+        # URI chỉ đọc: script không thể ghi vào cơ sở dữ liệu
+        sandbox_vars = {"DB_URI": f"file:{self.db_path}?mode=ro", "OUTPUT_DIR": self.output_dir}
         prompt = (f"[CODE] Write a Python 3 script for the task.\nTask: {task_content}\nParameters: {parameters or {}}\n"
-                  f"Variables already defined: DB_PATH (SQLite file with table sales), OUTPUT_DIR (folder for files).\n"
+                  f"Variables already defined: DB_URI (read-only SQLite URI of table sales; connect with "
+                  f"sqlite3.connect(DB_URI, uri=True)), OUTPUT_DIR (folder for files).\n"
                   f"Allowed imports: {ALLOWED_IMPORTS}. Save any chart as OUTPUT_DIR + '/chart.png' with plt.savefig. "
                   "Print the final answer. Reply with code only.")
         code = strip_fences(self._ask(prompt))
