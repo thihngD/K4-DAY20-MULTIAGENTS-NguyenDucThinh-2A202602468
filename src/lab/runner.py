@@ -94,12 +94,21 @@ def run_task(task_id: str, condition: str, results_dir="results", model=None, re
         usage = UsageMetadataCallbackHandler()                       # cộng token của mọi lần gọi LLM, kể cả subagent
         messages = []
         t0 = time.time()
+        progress = out / "progress.log"
+        progress.write_text("", encoding="utf-8")
         try:
             # stream_mode="values" giữ trạng thái cuối cùng: vẫn có vết khi lỗi giữa chừng (ví dụ hết recursion_limit)
-            for state in agent.stream({"messages": [{"role": "user", "content": task.instruction}]},
-                                      config={"callbacks": [usage], "recursion_limit": recursion_limit},
-                                      stream_mode="values"):
+            for step, state in enumerate(agent.stream({"messages": [{"role": "user", "content": task.instruction}]},
+                                                      config={"callbacks": [usage], "recursion_limit": recursion_limit},
+                                                      stream_mode="values"), start=1):
                 messages = state["messages"]
+                # ghi từng bước: nếu lần chạy bị treo, vẫn biết nó dừng ở bước nào và trace đến đâu
+                last = messages[-1]
+                names = [tc["name"] for tc in getattr(last, "tool_calls", []) or []]
+                tokens = sum(u.get("total_tokens", 0) for u in usage.usage_metadata.values())
+                with progress.open("a", encoding="utf-8") as f:
+                    f.write(f"step={step} t={time.time() - t0:.1f}s last={last.type} tools={names} tokens={tokens}\n")
+                (out / "trace.md").write_text(render_trace(messages), encoding="utf-8")
             record["final_message"] = str(messages[-1].content) if messages else ""
         except Exception as exc:  # noqa: BLE001 - lỗi API/giới hạn được ghi lại, không làm dừng chương trình
             record["error"] = f"{type(exc).__name__}: {exc}"

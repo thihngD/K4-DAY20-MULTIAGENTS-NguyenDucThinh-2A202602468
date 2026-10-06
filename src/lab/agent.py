@@ -64,6 +64,27 @@ def make_backend(sandbox: Path):
     )
 
 
+MODEL_TIMEOUT = 120          # giây cho mỗi lần gọi API; không có giới hạn này một yêu cầu bị treo có thể chờ rất lâu
+MODEL_MAX_RETRIES = 2
+
+
+def default_model():
+    """Mô hình mặc định của lab, có timeout và số lần thử lại.
+
+    `make_model()` (tệp có sẵn) không đặt timeout cho nhà cung cấp LangChain như `openai:<model>`. Hàm này làm như
+    `make_model()` nhưng thêm `timeout` và `max_retries` cho OpenAI và Anthropic; các trường hợp khác dùng `make_model()`.
+    """
+    from langchain.chat_models import init_chat_model
+
+    name = os.getenv("LAB_MODEL", "")
+    provider = name.split(":", 1)[0]
+    if os.getenv("LAB_BASE_URL") or provider not in ("openai", "anthropic") or ":" not in name:
+        return make_model()
+    return init_chat_model(name.split(":", 1)[1], model_provider=provider,
+                           temperature=float(os.getenv("LAB_TEMPERATURE", "0")),
+                           timeout=MODEL_TIMEOUT, max_retries=MODEL_MAX_RETRIES)
+
+
 def build_agent(sandbox: Path, mode: str = "single", use_skills: bool = False, model=None):
     """Tạo tác tử Deep Agents.
 
@@ -91,7 +112,7 @@ def build_agent(sandbox: Path, mode: str = "single", use_skills: bool = False, m
         kwargs["skills"] = ["/skills/"]             # đường dẫn ảo, tính từ root_dir của backend
         prompt = prompt + SKILLS_NOTE
     return create_deep_agent(
-        model=model if model is not None else make_model(),
+        model=model if model is not None else default_model(),
         system_prompt=prompt,
         backend=make_backend(sandbox),
         **kwargs,
