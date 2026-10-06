@@ -33,10 +33,10 @@ class CoordinatorException(Exception):
 
 
 class Coordinator(BaseAgent):
-    def __init__(self, model=None, workers=None, message_queue=None, timeout: float = 60, max_retries: int = 2):
+    def __init__(self, model=None, workers=None, timeout: float = 60, max_retries: int = 2):
         super().__init__("coordinator", model)
+        # worker có thể là agent trực tiếp hoặc QueueWorkerProxy (gọi qua message queue): cùng giao diện process_async
         self.workers = {agent.name: agent for agent in (workers or [])}
-        self.message_queue = message_queue            # để trống thì gọi worker trực tiếp (dùng cho test)
         self.timeout = timeout
         self.max_retries = max_retries
         self.active_tasks: dict[str, float] = {}      # id tác vụ -> thời điểm bắt đầu
@@ -154,7 +154,16 @@ class Coordinator(BaseAgent):
         if len(names) > MAX_TASKS:
             return {"status": "error", "errors": [{"error": "too many tasks"}], "data": None, "code": None,
                     "evaluation": None}
+        # Giai đoạn 1: worker tạo kết quả (dữ liệu, code). Giai đoạn 2: evaluator chấm kết quả của giai đoạn 1.
+        producers = [n for n in names if n != "evaluator_agent"]
+        evaluators = [n for n in names if n == "evaluator_agent"]
         tasks = [{"id": f"{i}-{n}", "worker": n, "content": request, "parameters": parsed["parameters"]}
-                 for i, n in enumerate(names, start=1)]
-        results = await self.execute_tasks_with_retry(tasks)
+                 for i, n in enumerate(producers, start=1)]
+        results = await self.execute_tasks_with_retry(tasks) if tasks else []
+        if evaluators:
+            artifacts = {r["type"]: r.get("result") for r in results if r["status"] == "success"}
+            content = f"{request}\n\nWORK TO EVALUATE:\n{artifacts}" if artifacts else request
+            eval_tasks = [{"id": f"eval-{n}", "worker": n, "content": content, "parameters": parsed["parameters"]}
+                          for n in evaluators]
+            results += await self.execute_tasks_with_retry(eval_tasks)
         return {**self.aggregate_results(results), "task_type": parsed["task_type"], "priority": parsed["priority"]}
