@@ -155,5 +155,16 @@ Hệ thống chạy được end-to-end với mô hình thật: tình huống đ
 ## Phụ lục
 
 - **Lệnh đã chạy:** `pytest -q`; `python scripts/test_coordinator_standalone.py`; `python scripts/test_tool_integration.py`; `python scripts/setup_data.py`; `python scripts/benchmark.py --iterations 3 --out benchmarks/runN.json` (N = 1..3); `python scripts/profile_system.py` (mô hình giả); `python scripts/debug_agent.py ...`; `python scripts/debug_system.py ...`.
-- **Thử thách mở rộng (+5):** không thực hiện.
+- **Thử thách mở rộng (+5), hướng 6c - cache kết quả:**
+  - Thiết kế: `src/caching.py` (cache kết quả `success`, chuẩn hóa chữ hoa và khoảng trắng). Thí nghiệm riêng trong `experiments/caching/`: cùng bộ 3 tình huống × 3 lần lặp với benchmark gốc, cache bật, ba lần chạy độc lập. Kết quả không cache lấy từ `benchmarks/run1–3.json`.
+  - Kết quả: mỗi tình huống, lần đầu là miss (gọi worker), hai lần sau là hit (độ trễ ~0, 0 token). Tỉ lệ hit 67%.
+
+    | Chỉ số | Không cache (3 lần) | Có cache (3 lần) | Thay đổi |
+    |---|---|---|---|
+    | Token mỗi lần chạy 9 yêu cầu | 21.669 / 25.594 / 24.872 (TB 24.045) | 6.767 / 4.167 / 5.329 (TB 5.421) | −77,5% |
+    | Độ trễ trung bình mỗi yêu cầu | 14,6 / 17,4 / 16,9 s (TB 16,3 s) | 5,4 / 3,3 / 4,1 s (TB 4,3 s) | −73,9% |
+    | Tỉ lệ lỗi | 0–22% | 0% | — |
+
+  - Hạn chế: tỉ lệ hit 67% do thiết kế benchmark lặp lại đúng một yêu cầu ba lần, không phản ánh lưu lượng thật. Không có thời gian hết hạn: dữ liệu thay đổi thì cache trả kết quả cũ. Hai yêu cầu khác cách diễn đạt sẽ không trúng cache. Con số tiết kiệm sẽ thấp hơn nhiều với lưu lượng có ít lặp lại.
+  - Đánh giá điểm (ước tính, không chính thức): không có thang điểm cho RQ2 trong tài liệu. Các mục checklist đã hoàn thành khoảng 85–90%. Chưa làm: push GitHub, nộp bài, trả lời 3 câu hỏi Phần 1 (không đọc được trong tài liệu). Bài Deep Agents (`RUBRIC.md`) ước tính khoảng 90–95/100, chưa tính điểm thưởng.
 - **Ghi chú:** Các lần chạy benchmark trước khi sửa được giữ trong `benchmarks/before_fix.json` và `benchmarks/fix1/`–`fix3/`. Log từng agent nằm trong `logs/`.

@@ -1,0 +1,88 @@
+{
+  "cache": true,
+  "records": [
+    {
+      "case": "Simple data query",
+      "iteration": 1,
+      "cache": "miss",
+      "latency": 2.156,
+      "status": "success",
+      "tokens": 349
+    },
+    {
+      "case": "Simple data query",
+      "iteration": 2,
+      "cache": "hit",
+      "latency": 0.0,
+      "status": "success",
+      "tokens": 0
+    },
+    {
+      "case": "Simple data query",
+      "iteration": 3,
+      "cache": "hit",
+      "latency": 0.0,
+      "status": "success",
+      "tokens": 0
+    },
+    {
+      "case": "Code generation",
+      "iteration": 1,
+      "cache": "miss",
+      "latency": 8.396,
+      "status": "success",
+      "tokens": 1318
+    },
+    {
+      "case": "Code generation",
+      "iteration": 2,
+      "cache": "hit",
+      "latency": 0.0,
+      "status": "success",
+      "tokens": 0
+    },
+    {
+      "case": "Code generation",
+      "iteration": 3,
+      "cache": "hit",
+      "latency": 0.0,
+      "status": "success",
+      "tokens": 0
+    },
+    {
+      "case": "Complex workflow",
+      "iteration": 1,
+      "cache": "miss",
+      "latency": 18.987,
+      "status": "success",
+      "tokens": 2500
+    },
+    {
+      "case": "Complex workflow",
+      "iteration": 2,
+      "cache": "hit",
+      "latency": 0.0,
+      "status": "success",
+      "tokens": 0
+    },
+    {
+      "case": "Complex workflow",
+      "iteration": 3,
+      "cache": "hit",
+      "latency": 0.0,
+      "status": "success",
+      "tokens": 0
+    }
+  ],
+  "summary": {
+    "requests": 9,
+    "hits": 6,
+    "misses": 3,
+    "hit_rate": 0.667,
+    "latency_miss_avg": 9.846,
+    "latency_hit_avg": 0.0,
+    "tokens_total": 4167,
+    "tokens_on_hits": 0,
+    "error_rate": 0.0
+  }
+}

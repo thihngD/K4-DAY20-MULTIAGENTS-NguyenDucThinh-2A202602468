@@ -12,6 +12,7 @@ from pathlib import Path
 
 from .agents import CodeAgent, DataAgent, EvaluatorAgent
 from .communication import MessageQueue, QueueWorkerProxy
+from .caching import CachingCoordinator
 from .coordinator import Coordinator
 from .llm import CountingLLM, make_llm
 from .sample_data import SCHEMA
@@ -24,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class MultiAgentSystem:
     def __init__(self, model=None, db_path: str | Path | None = None, output_dir: str | Path | None = None,
-                 timeout: float = 60, max_retries: int = 2):
+                 timeout: float = 60, max_retries: int = 2, cache: bool = False):
         self.model = model if model is not None else CountingLLM(make_llm())   # đếm token khi dùng mô hình thật
         db_path = Path(db_path) if db_path else ROOT / "data" / "sales.db"
         output_dir = Path(output_dir) if output_dir else ROOT / "outputs"
@@ -40,7 +41,9 @@ class MultiAgentSystem:
         for name in self.agents:
             self.queue.register_agent(name)
         proxies = [QueueWorkerProxy(name, self.queue, reply_timeout=timeout + 10) for name in self.agents]
-        self.coordinator = Coordinator(model=self.model, workers=proxies, timeout=timeout, max_retries=max_retries)
+        coordinator_cls = CachingCoordinator if cache else Coordinator       # 6c: cache kết quả thành công
+        self.coordinator = coordinator_cls(model=self.model, workers=proxies, timeout=timeout,
+                                           max_retries=max_retries)
         self._servers: list[asyncio.Task] = []
 
     async def __aenter__(self):

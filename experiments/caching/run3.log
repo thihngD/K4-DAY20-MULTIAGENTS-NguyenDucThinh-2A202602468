@@ -1,0 +1,22 @@
+caching experiment run 3: 3 iterations per case, cache on
+  Simple data query  iter 1:   3.17s cache=miss status=success tokens=349
+  Simple data query  iter 2:   0.00s cache=hit status=success tokens=0
+  Simple data query  iter 3:   0.00s cache=hit status=success tokens=0
+  Code generation    iter 1:  17.98s cache=miss status=success tokens=2624
+  Code generation    iter 2:   0.00s cache=hit status=success tokens=0
+  Code generation    iter 3:   0.00s cache=hit status=success tokens=0
+  Complex workflow   iter 1:  15.32s cache=miss status=success tokens=2356
+  Complex workflow   iter 2:   0.00s cache=hit status=success tokens=0
+  Complex workflow   iter 3:   0.00s cache=hit status=success tokens=0
+{
+  "requests": 9,
+  "hits": 6,
+  "misses": 3,
+  "hit_rate": 0.667,
+  "latency_miss_avg": 12.159,
+  "latency_hit_avg": 0.0,
+  "tokens_total": 5329,
+  "tokens_on_hits": 0,
+  "error_rate": 0.0
+}
+saved to /mnt/d/downloads/Git/K4-DAY20-MULTIAGENTS-NguyenDucThinh-2A202602468/experiments/caching/results/run3.json
