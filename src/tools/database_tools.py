@@ -25,8 +25,8 @@ class QueryDatabaseTool(BaseTool):
         body = query.strip().rstrip(";").strip()
         if ";" in body:
             raise ValueError("only one statement is allowed")
-        if not re.match(r"(?is)^select\b", body):
-            raise ValueError("only SELECT queries are allowed")
+        if not re.match(r"(?is)^(select|with)\b", body) or not re.search(r"(?i)\bselect\b", body):
+            raise ValueError("only SELECT queries (optionally WITH ... SELECT) are allowed")
         if FORBIDDEN.search(body):
             raise ValueError("query contains a forbidden keyword")
 

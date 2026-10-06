@@ -1,0 +1,28 @@
+         16784 function calls (16622 primitive calls) in 1.704 seconds
+
+   Ordered by: cumulative time
+   List reduced from 572 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    1.704    1.704 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/asyncio/runners.py:160(run)
+        3    0.000    0.000    1.703    0.568 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/asyncio/base_events.py:618(run_until_complete)
+        3    0.000    0.000    1.703    0.568 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/asyncio/base_events.py:594(run_forever)
+      128    0.001    0.000    1.703    0.013 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/asyncio/base_events.py:1859(_run_once)
+        1    0.000    0.000    1.703    1.703 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/asyncio/runners.py:86(run)
+      128    0.000    0.000    1.663    0.013 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/selectors.py:451(select)
+      128    1.662    0.013    1.662    0.013 {method 'poll' of 'select.epoll' objects}
+      196    0.000    0.000    0.039    0.000 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/asyncio/events.py:82(_run)
+      196    0.000    0.000    0.039    0.000 {method 'run' of '_contextvars.Context' objects}
+       41    0.000    0.000    0.020    0.000 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/logging/__init__.py:1479(info)
+       41    0.000    0.000    0.020    0.000 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/logging/__init__.py:1610(_log)
+       41    0.000    0.000    0.018    0.000 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/logging/__init__.py:1636(handle)
+       41    0.000    0.000    0.018    0.000 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/logging/__init__.py:1690(callHandlers)
+       41    0.000    0.000    0.018    0.000 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/logging/__init__.py:965(handle)
+       41    0.000    0.000    0.018    0.000 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/logging/__init__.py:1216(emit)
+       41    0.000    0.000    0.018    0.000 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/logging/__init__.py:1098(emit)
+       41    0.000    0.000    0.017    0.000 /home/thinhng/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/lib/python3.11/logging/__init__.py:1087(flush)
+       41    0.016    0.000    0.016    0.000 {method 'flush' of '_io.TextIOWrapper' objects}
+        8    0.000    0.000    0.013    0.002 /mnt/d/downloads/Git/K4-DAY20-MULTIAGENTS-NguyenDucThinh-2A202602468/scripts/profile_system.py:28(run_all)
+       26    0.000    0.000    0.010    0.000 /mnt/d/downloads/Git/K4-DAY20-MULTIAGENTS-NguyenDucThinh-2A202602468/src/agents/base_worker.py:53(serve)
+
+

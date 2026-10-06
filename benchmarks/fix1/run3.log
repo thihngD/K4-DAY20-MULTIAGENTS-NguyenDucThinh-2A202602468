@@ -1,0 +1,49 @@
+benchmark: openai model, 3 iterations per case
+  Simple data query  iter 1:   2.08s  status=success  tokens=349
+  Simple data query  iter 2:   2.03s  status=success  tokens=349
+  Simple data query  iter 3:   3.82s  status=success  tokens=349
+  Code generation    iter 1:   6.75s  status=success  tokens=1385
+  Code generation    iter 2:   6.93s  status=success  tokens=1385
+  Code generation    iter 3:   6.49s  status=success  tokens=1373
+  Complex workflow   iter 1:  16.38s  status=partial  tokens=2415
+  Complex workflow   iter 2:  12.79s  status=partial  tokens=2108
+  Complex workflow   iter 3:  14.58s  status=partial  tokens=2135
+{
+  "requests": 9,
+  "per_case": {
+    "Simple data query": {
+      "iterations": 3,
+      "min": 2.03,
+      "max": 3.82,
+      "avg": 2.64,
+      "median": 2.08
+    },
+    "Code generation": {
+      "iterations": 3,
+      "min": 6.49,
+      "max": 6.93,
+      "avg": 6.72,
+      "median": 6.75
+    },
+    "Complex workflow": {
+      "iterations": 3,
+      "min": 12.79,
+      "max": 16.38,
+      "avg": 14.58,
+      "median": 14.58
+    }
+  },
+  "p50": 6.49,
+  "p99": 16.38,
+  "throughput_per_min": 7.52,
+  "error_rate": 0.333,
+  "tokens_total": 11848,
+  "tokens_per_100_requests": 131644,
+  "worker_utilisation": {
+    "data_agent": 0.343,
+    "code_agent": 0.766,
+    "evaluator_agent": 0.121
+  },
+  "wall_seconds": 71.85
+}
+saved to benchmarks/run3.json

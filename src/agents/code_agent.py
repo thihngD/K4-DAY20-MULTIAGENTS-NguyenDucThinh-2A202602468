@@ -10,25 +10,33 @@ class CodeAgent(BaseWorker):
         "You are a Code Generation Specialist. Write a short self-contained Python script for the task, "
         "test it with python_repl, and return the working code and its output. Always test before answering."
     )
-    max_attempts = 2          # lần đầu + một lần sửa theo thông báo lỗi
+    max_attempts = 3          # lần đầu + tối đa hai lần sửa theo thông báo lỗi
 
-    def __init__(self, model, tools: list, db_path: str, output_dir: str):
+    def __init__(self, model, tools: list, db_path: str, output_dir: str, schema: str = ""):
         super().__init__("code_agent", model, tools)
         self.db_path = db_path
         self.output_dir = output_dir
+        self.schema = schema
 
     def process(self, task_content: str, parameters: dict | None = None) -> dict:
         # URI chỉ đọc: script không thể ghi vào cơ sở dữ liệu
         sandbox_vars = {"DB_URI": f"file:{self.db_path}?mode=ro", "OUTPUT_DIR": self.output_dir}
-        prompt = (f"[CODE] Write a Python 3 script for the task.\nTask: {task_content}\nParameters: {parameters or {}}\n"
-                  f"Variables already defined: DB_URI (read-only SQLite URI of table sales; connect with "
-                  f"sqlite3.connect(DB_URI, uri=True)), OUTPUT_DIR (folder for files).\n"
-                  f"Allowed imports: {ALLOWED_IMPORTS}. Save any chart as OUTPUT_DIR + '/chart.png' with plt.savefig. "
-                  "Print the final answer. Reply with code only.")
+        prompt = (f"{self.system_prompt}\n\n[CODE] Write a Python 3 script for the task.\n"
+                  f"Task: {task_content}\nParameters: {parameters or {}}\n"
+                  f"Table schema (use only these column names):\n{self.schema}\n"
+                  "Rules:\n"
+                  "- Get the data with conn = connect_db() (read-only connection to table sales). Do not call sqlite3.connect yourself.\n"
+                  "- OUTPUT_DIR is the folder for files. Save a chart with plt.savefig(OUTPUT_DIR + '/chart.png').\n"
+                  f"- Allowed imports ONLY: {ALLOWED_IMPORTS}. Do not import os, subprocess or any other module.\n"
+                  "- Do not use the names open, input, exec, eval, globals or dunder names.\n"
+                  "- Print the final answer. Reply with code only, no explanations.")
         code = strip_fences(self._ask(prompt))
         run = {"status": "error", "error": "not run"}
         for attempt in range(1, self.max_attempts + 1):
-            run = self._execute_tool("python_repl", {"code": code, "variables": sandbox_vars})
+            try:
+                run = self._execute_tool("python_repl", {"code": code, "variables": sandbox_vars})
+            except ValueError as exc:            # script bị chặn bởi sandbox: coi như lỗi để sửa lại
+                run = {"status": "error", "error": str(exc)}
             if run.get("status") == "success":
                 break
             self.logger.warning("attempt %d failed: %s", attempt, run.get("error"))

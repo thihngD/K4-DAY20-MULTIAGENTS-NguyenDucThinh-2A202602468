@@ -1,0 +1,113 @@
+{
+  "mode": "openai",
+  "iterations": 3,
+  "summary": {
+    "requests": 9,
+    "per_case": {
+      "Simple data query": {
+        "iterations": 3,
+        "min": 1.94,
+        "max": 2.7,
+        "avg": 2.25,
+        "median": 2.12
+      },
+      "Code generation": {
+        "iterations": 3,
+        "min": 6.76,
+        "max": 8.13,
+        "avg": 7.44,
+        "median": 7.43
+      },
+      "Complex workflow": {
+        "iterations": 3,
+        "min": 10.48,
+        "max": 58.75,
+        "avg": 42.36,
+        "median": 57.86
+      }
+    },
+    "p50": 6.76,
+    "p99": 58.75,
+    "throughput_per_min": 3.46,
+    "error_rate": 0.222,
+    "tokens_total": 25594,
+    "tokens_per_100_requests": 284378,
+    "worker_utilisation": {
+      "data_agent": 0.157,
+      "code_agent": 0.915,
+      "evaluator_agent": 0.041
+    },
+    "wall_seconds": 156.17
+  },
+  "records": [
+    {
+      "case": "Simple data query",
+      "iteration": 1,
+      "latency": 2.701,
+      "status": "success",
+      "tokens": 349
+    },
+    {
+      "case": "Simple data query",
+      "iteration": 2,
+      "latency": 2.115,
+      "status": "success",
+      "tokens": 349
+    },
+    {
+      "case": "Simple data query",
+      "iteration": 3,
+      "latency": 1.943,
+      "status": "success",
+      "tokens": 349
+    },
+    {
+      "case": "Code generation",
+      "iteration": 1,
+      "latency": 6.76,
+      "status": "success",
+      "tokens": 1255
+    },
+    {
+      "case": "Code generation",
+      "iteration": 2,
+      "latency": 7.431,
+      "status": "success",
+      "tokens": 1315
+    },
+    {
+      "case": "Code generation",
+      "iteration": 3,
+      "latency": 8.13,
+      "status": "success",
+      "tokens": 1315
+    },
+    {
+      "case": "Complex workflow",
+      "iteration": 1,
+      "latency": 57.863,
+      "status": "partial",
+      "tokens": 8919
+    },
+    {
+      "case": "Complex workflow",
+      "iteration": 2,
+      "latency": 10.478,
+      "status": "success",
+      "tokens": 2489
+    },
+    {
+      "case": "Complex workflow",
+      "iteration": 3,
+      "latency": 58.748,
+      "status": "partial",
+      "tokens": 9254
+    }
+  ],
+  "wall_seconds": 156.17,
+  "busy_seconds": {
+    "data_agent": 24.49,
+    "code_agent": 142.85,
+    "evaluator_agent": 6.48
+  }
+}

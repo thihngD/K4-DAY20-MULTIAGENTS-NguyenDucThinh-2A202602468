@@ -28,7 +28,15 @@ def main() -> None:
     matplotlib.use("Agg")                       # lưu ảnh ra tệp, không mở cửa sổ
     safe = {name: getattr(builtins, name) for name in SAFE_BUILTINS}
     safe["__import__"] = safe_import
-    env = {"__builtins__": safe, **request.get("variables", {})}
+    variables = request.get("variables", {})
+    env = {"__builtins__": safe, **variables}
+
+    def connect_db():
+        """Kết nối chỉ đọc tới cơ sở dữ liệu bán hàng (đã đúng tham số uri=True)."""
+        import sqlite3
+        return sqlite3.connect(variables["DB_URI"], uri=True)
+
+    env["connect_db"] = connect_db
     buffer = io.StringIO()
     result = {"ok": True, "stdout": "", "error": None}
     try:

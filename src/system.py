@@ -13,7 +13,7 @@ from pathlib import Path
 from .agents import CodeAgent, DataAgent, EvaluatorAgent
 from .communication import MessageQueue, QueueWorkerProxy
 from .coordinator import Coordinator
-from .llm import make_llm
+from .llm import CountingLLM, make_llm
 from .sample_data import SCHEMA
 from .tools.code_tools import CreateFileTool, EditFileTool, PythonREPLTool
 from .tools.database_tools import QueryDatabaseTool
@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class MultiAgentSystem:
     def __init__(self, model=None, db_path: str | Path | None = None, output_dir: str | Path | None = None,
                  timeout: float = 60, max_retries: int = 2):
-        self.model = model if model is not None else make_llm()
+        self.model = model if model is not None else CountingLLM(make_llm())   # đếm token khi dùng mô hình thật
         db_path = Path(db_path) if db_path else ROOT / "data" / "sales.db"
         output_dir = Path(output_dir) if output_dir else ROOT / "outputs"
         self.queue = MessageQueue()
@@ -33,7 +33,8 @@ class MultiAgentSystem:
             "data_agent": DataAgent(self.model, [QueryDatabaseTool(db_path)], schema=SCHEMA),
             "code_agent": CodeAgent(self.model, [PythonREPLTool(), CreateFileTool(output_dir),
                                                  EditFileTool(output_dir)],
-                                    db_path=str(db_path.resolve()), output_dir=str(output_dir.resolve())),
+                                    db_path=str(db_path.resolve()), output_dir=str(output_dir.resolve()),
+                                    schema=SCHEMA),
             "evaluator_agent": EvaluatorAgent(self.model, [ScoringTool(), ValidationTool()]),
         }
         for name in self.agents:

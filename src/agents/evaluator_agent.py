@@ -14,16 +14,28 @@ class EvaluatorAgent(BaseWorker):
         '"feedback": "...", "issues": ["..."], "suggestions": ["..."]}'
     )
 
+    max_attempts = 2
+
     def __init__(self, model, tools: list):
         super().__init__("evaluator_agent", model, tools)
 
     def process(self, task_content: str, parameters: dict | None = None) -> dict:
-        reply = self._ask(f"[EVAL] Evaluate the work below against the request.\n{task_content}\n"
-                          f"Reply with the JSON object only.")
-        data = parse_json(reply)
-        check = self._execute_tool("validation", {"payload": data, "required": REQUIRED_KEYS})
-        if check.get("status") != "success":
-            return {"status": "error", "error": check.get("error", "invalid evaluation format")}
+        note = ""
+        for attempt in range(1, self.max_attempts + 1):
+            reply = self._ask(f"{self.system_prompt}\n\n[EVAL] Evaluate the work below against the request.\n"
+                              f"{task_content}\nReply with the JSON object only.{note}")
+            try:
+                data = parse_json(reply)
+                check = self._execute_tool("validation", {"payload": data, "required": REQUIRED_KEYS})
+                error = None if check.get("status") == "success" else check.get("error", "invalid format")
+            except ValueError as exc:
+                error = str(exc)
+            if error is None:
+                break
+            self.logger.warning("evaluation attempt %d invalid: %s", attempt, error)
+            note = f"\nYour previous reply was invalid ({error}). Reply with the JSON object only."
+        if error is not None:
+            return {"status": "error", "error": error}
         scored = self._execute_tool("scoring", {"scores": data["scores"], "weights": WEIGHTS})
         return {"status": "success", "scores": scored,
                 "result": f"score {scored['weighted_score']}/100 (grade {scored['grade']}). {data['feedback']}"}

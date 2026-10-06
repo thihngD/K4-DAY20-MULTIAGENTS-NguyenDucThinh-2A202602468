@@ -22,6 +22,11 @@ def test_query_tool_runs_select_and_adds_limit(db):
     assert out["status"] == "success" and out["rows"] == 4 and set(out["columns"]) == {"region", "n"}
 
 
+def test_query_tool_accepts_with_clause(db):
+    query = "WITH q AS (SELECT region, amount FROM sales) SELECT region, SUM(amount) AS total FROM q GROUP BY region"
+    assert QueryDatabaseTool(db).invoke({"query": query})["status"] == "success"
+
+
 @pytest.mark.parametrize("bad", [
     "DROP TABLE sales",
     "DELETE FROM sales",
